@@ -1,10 +1,16 @@
+using DevExpress.XtraCharts;
 using DxDirectPrint;
 using DxDirectPrint.Data;
+using DxDirectPrint.Data.DTO;
 using DxDirectPrint.Data.EF;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
+using Mapster;
+using FluentValidation;
+using DxDirectPrint.Data.Stores;
+using DxDirectPrint.Data.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +25,7 @@ builder.Services.AddSingleton<WeatherForecastService>();
 builder.WebHost.UseWebRoot("wwwroot");
 builder.WebHost.UseStaticWebAssets();
 
+builder.Services.AddMapster();
 
 builder.Services.AddResponseCompression(opt =>
 {
@@ -28,6 +35,20 @@ builder.Services.AddResponseCompression(opt =>
 
 var connStr = builder.Configuration.GetConnectionString("ChinookConnection");
 builder.Services.AddDbContext<ChinookContext>(options => options.UseSqlServer(connStr));
+
+builder.Services.AddScoped<IDataStore<int, InvoiceModel>, InvoiceStore>();
+builder.Services.AddScoped<IValidator<Invoice>, InvoiceValidator>();
+builder.Services.AddScoped<IValidator<InvoiceModel>, InvoiceModelValidator>();
+
+builder.Services.AddScoped<IDataStore<int, InvoiceLineModel>, InvoiceLineStore>();
+builder.Services.AddScoped<IValidator<InvoiceLine>, InvoiceLineValidator>();
+builder.Services.AddScoped<IValidator<InvoiceLineModel>, InvoiceLineModelValidator>();
+
+builder.Services.AddScoped<IDataStore<int, CustomerModel>, CustomerStore>();
+builder.Services.AddScoped<IValidator<Customer>, CustomerValidator>();
+builder.Services.AddScoped<IValidator<CustomerModel>, CustomerModelValidator>();
+
+builder.Services.AddScoped<IDataService<int, InvoiceModel>, InvoiceService>();
 
 
 var app = builder.Build();
@@ -49,5 +70,6 @@ app.UseRouting();
 app.MapBlazorHub();
 app.MapHub<PrintHub>("/printhub");
 app.MapFallbackToPage("/_Host");
+app.MapControllers();
 
 app.Run();

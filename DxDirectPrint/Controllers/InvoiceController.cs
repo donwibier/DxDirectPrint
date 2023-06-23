@@ -1,18 +1,21 @@
 ﻿using DevExpress.XtraReports;
 using DevExpress.XtraReports.UI;
-using DxDirectPrint.Data.EF;
+using DxDirectPrint.Data;
+using DxDirectPrint.Data.DTO;
 using DxDirectPrint.Reports;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace DxDirectPrint.Controllers
 {
     public class InvoiceController : Controller
     {
-        readonly ILogger<InvoiceController> logger;
-        readonly ChinookContext dbCtx;
-        public InvoiceController(ILogger<InvoiceController> logger, ChinookContext dbCtx) {
-            this.dbCtx = dbCtx;
+        readonly ILogger<InvoiceController> logger;        
+        readonly IDataService<int, InvoiceModel> invoiceService;
+        public InvoiceController(ILogger<InvoiceController> logger, IDataService<int, InvoiceModel> invoiceService)
+        {
+            this.invoiceService = invoiceService;
             this.logger = logger;
         }
         public IActionResult Index()
@@ -24,13 +27,22 @@ namespace DxDirectPrint.Controllers
         [HttpGet("GetOrderPDF/{id}.pdf")]
         public async Task<IActionResult> GetOrder(int id)
         {
-            var order = dbCtx.Invoices.Where(i => i.InvoiceId == id).FirstOrDefault();
+            var order = await invoiceService.GetByKeyAsync(id);                            
             if (order == null)
             {
                 throw new KeyNotFoundException();
             }
-            XtraReport report = new XtraReport1();
-            report.DataSource = new List<Invoice>(new[] { order });
+
+
+
+            //await dbCtx.Entry(order)
+            //    .Reference(o => o.Customer).LoadAsync();
+			//await dbCtx.Entry(order)
+			//	.Collection(o => o.InvoiceLines).LoadAsync();
+
+
+			XtraReport report = new XtraReport1();
+            report.DataSource = new List<InvoiceModel>(new[] { order });
             
             byte[] content = null!;
             using (MemoryStream ms = new MemoryStream())
