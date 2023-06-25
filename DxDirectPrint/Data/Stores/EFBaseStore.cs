@@ -4,7 +4,7 @@ using Mapster;
 using MapsterMapper;
 using FluentValidation;
 using FluentValidation.Results;
-
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace DxDirectPrint.Data.Stores
 {
@@ -33,7 +33,7 @@ namespace DxDirectPrint.Data.Stores
 	}
 
 	public abstract class EFDataStore<TEFContext, TKey, TModel, TDBModel> : IDataStore<TKey, TModel>
-		where TEFContext : DbContext, new()
+		where TEFContext : DbContext
 		where TKey : IEquatable<TKey>
 		where TModel : class, new()
 		where TDBModel : class, new()

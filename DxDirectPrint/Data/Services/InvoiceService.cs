@@ -1,10 +1,14 @@
-﻿using DxDirectPrint.Data.DTO;
+﻿using DevExpress.PivotGrid.OLAP;
+using DevExpress.XtraReports.UI;
+using DxDirectPrint.Reports;
+using DxDirectPrint.Data.DTO;
 using FluentValidation;
+using Mapster;
 using Microsoft.EntityFrameworkCore;
 
 namespace DxDirectPrint.Data.Services
 {
-    public class InvoiceService : BaseDataService<int, DTO.InvoiceModel>
+    public class InvoiceService : BaseDataService<int, DTO.InvoiceModel>, IInvoiceService
     {
         public IDataStore<int, InvoiceLineModel> InvoiceLineStore { get; }
         public IDataStore<int, CustomerModel> CustomerStore { get; }
@@ -25,5 +29,31 @@ namespace DxDirectPrint.Data.Services
 
             return result;
         }
+
+        public async Task<byte[]> GetInvoiceReceiptPDFAsync(string username, int invoiceId)
+        {
+            ArgumentNullException.ThrowIfNull(invoiceId);
+            ArgumentNullException.ThrowIfNull(username);
+            //ArgumentNullException.ThrowIfNull(reportName);
+
+            var order = await GetByKeyAsync(invoiceId);
+            ArgumentNullException.ThrowIfNull(order);
+            
+            
+            XtraReport report = new XtraReport1(); // 
+            ArgumentNullException.ThrowIfNull(report);
+
+            report.DataSource = new List<InvoiceModel>(new[] { order });            
+            //report.ApplyLocalization("en-US");
+            
+            byte[] content = null!;
+            using (MemoryStream ms = new MemoryStream())
+            {
+                await report.ExportToPdfAsync(ms);
+                content = ms.ToArray();
+            }
+            return content;
+        }
+
     }
 }

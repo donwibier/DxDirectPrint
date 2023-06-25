@@ -1,4 +1,5 @@
 ﻿using DxDirectPrint.Data.EF;
+using DxDirectPrint.Data.Services;
 using Microsoft.AspNetCore.SignalR;
 
 namespace DxDirectPrint
@@ -9,11 +10,12 @@ namespace DxDirectPrint
         private readonly static ConnectionMapping<string> _connections =
             new ConnectionMapping<string>();
         private readonly ILogger<PrintHub> log;
-        readonly ChinookContext dbCtx;
+        readonly InvoiceService invoiceService;
 
-        public PrintHub(ILogger<PrintHub> logger, ChinookContext dbCtx)
+
+        public PrintHub(ILogger<PrintHub> logger, InvoiceService invoiceService)
         {
-            this.dbCtx = dbCtx;
+            this.invoiceService = invoiceService;
             log = logger;
         }
 
@@ -49,7 +51,7 @@ namespace DxDirectPrint
                 if (!string.IsNullOrEmpty(name))
                 {
                     //we need to check if the item exists
-                    var orderExists = dbCtx.Invoices.Where(i => i.InvoiceId == args.OrderID).Any();
+                    var orderExists = invoiceService.MainStore.Query().Where(i => i.InvoiceId == args.OrderID).Any();
                     
                     int prnCount = 0;
                     if (orderExists)

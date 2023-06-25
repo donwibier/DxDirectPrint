@@ -7,11 +7,16 @@ namespace DxDirectPrint.Data.Stores
 {
     public class CustomerStore :  EFDataStore<ChinookContext, int, DTO.CustomerModel, Customer>
     {
-        public CustomerStore(ChinookContext context, IMapper mapper, IValidator<Customer> validator) 
-            : base(context, mapper, validator)
+        public CustomerStore(ChinookContext context, IMapper mapper, IValidator<Customer> validator) : base(context, mapper, validator)
         {
 
         }
+
+        //public CustomerStore(ChinookContext context, IMapper mapper, IValidator<Customer> validator) 
+        //    : base(context, mapper, validator)
+        //{
+
+        //}
 
         public override string[] KeyFields => new[] { nameof(Customer.CustomerId)};
 

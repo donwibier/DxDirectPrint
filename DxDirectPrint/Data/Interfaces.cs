@@ -1,4 +1,5 @@
 ﻿using DevExpress.Blazor;
+using DxDirectPrint.Data.DTO;
 using FluentValidation;
 
 namespace DxDirectPrint.Data
@@ -42,5 +43,11 @@ namespace DxDirectPrint.Data
 
         Task<TModel> GetByKeyAsync(TKey key);
         GridDevExtremeDataSource<TModel> GetMainDatasource();
+        
+    }
+
+	public interface IInvoiceService : IDataService<int, InvoiceModel>
+	{
+        Task<byte[]> GetInvoiceReceiptPDFAsync(string username, int invoiceId);
     }
 }

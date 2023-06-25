@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace DxDirectPrint.Data.EF;
 
-public partial class ChinookContext : DbContext
+public partial class ChinookContext : IdentityDbContext
 {
-    public ChinookContext()
-    {
-    }
 
     public ChinookContext(DbContextOptions<ChinookContext> options)
         : base(options)
