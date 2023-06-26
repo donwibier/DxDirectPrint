@@ -109,6 +109,10 @@ namespace DxPrintConnector.PrinterConnector
 
 		protected async Task<bool> Authenticate(string username, string password)
 		{
+			//TEST PURPOSES!
+			if (string.IsNullOrEmpty(username) && string.IsNullOrEmpty(password))
+				return true;
+
 			AuthenticationModel model = new AuthenticationModel
 			{
 				Email = username,
@@ -118,8 +122,7 @@ namespace DxPrintConnector.PrinterConnector
 			var content = JsonSerializer.Serialize(model);
 			var bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
 
-			HttpClient _client = new HttpClient();
-			//{"Email":"test1@localhost","Password":"Test123$","RememberMe":false,"ReturnUrl":""}
+			HttpClient _client = new HttpClient();			
 			var authResult = await _client.PostAsync($"{host}api/accounts/Login", bodyContent);
 			var authContent = await authResult.Content.ReadAsStringAsync();
 			try
@@ -133,8 +136,7 @@ namespace DxPrintConnector.PrinterConnector
 					token = result.Token;
 					refreshToken = result.RefreshToken;
 					SaveSettings();				
-				}
-				//AddMessage($"Token: {token}");
+				}				
 				return result.IsAuthSuccessful;
 			}
 			catch(Exception ex)
@@ -185,11 +187,11 @@ namespace DxPrintConnector.PrinterConnector
 		{
 			try
 			{
-				await RefreshToken();
+				//await RefreshToken();
 				_connection = new HubConnectionBuilder()
 					.WithUrl($"{host}printhub?printID={txtEditPrintID.Text}", options =>
 					{
-						options.AccessTokenProvider = () => Task.FromResult(token);												
+						//options.AccessTokenProvider = () => Task.FromResult(token);												
 					})
 					.WithAutomaticReconnect()
 					.Build();
@@ -257,7 +259,9 @@ namespace DxPrintConnector.PrinterConnector
 			while (retryCount < 4)
 			{
 				retryCount++;
-				_client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+				if (!string.IsNullOrEmpty(token))
+					_client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
 				var authResult = await _client.PostAsync($"{host}api/orders/PDF", bodyContent);
 				if (authResult.StatusCode == System.Net.HttpStatusCode.Unauthorized /*401*/) //token expired				
 				{
@@ -312,7 +316,6 @@ namespace DxPrintConnector.PrinterConnector
 
 		private void btnConnect_CheckedChanged(object sender, EventArgs e)
 		{
-
 		}
 
 		private async void btnConnect_Click(object sender, EventArgs e)
@@ -329,7 +332,6 @@ namespace DxPrintConnector.PrinterConnector
 						await Authenticate(dlg.Username, dlg.Password);
 					}
 					Connect();
-
 				}
 				else {
 			
@@ -338,12 +340,6 @@ namespace DxPrintConnector.PrinterConnector
 				}
 			}
 		}
-
-		
-
-		//private void FrmMain_ResizeEnd(object sender, EventArgs e)
-		//{
-		//}
 
 		private void FrmMain_Resize(object sender, EventArgs e)
 		{
@@ -396,11 +392,11 @@ namespace DxPrintConnector.PrinterConnector
 					("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
 			if (isChecked)
 			{
-				registryKey.SetValue("KwikEat PrintConnector", Application.ExecutablePath);
+				registryKey.SetValue("DxPrintConnector", Application.ExecutablePath);
 			}
 			else
 			{
-				registryKey.DeleteValue("KwikEat PrintConnector");
+				registryKey.DeleteValue("DxPrintConnector");			
 			}
 		}
 

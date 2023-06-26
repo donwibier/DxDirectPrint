@@ -4,7 +4,6 @@ using Mapster;
 using MapsterMapper;
 using FluentValidation;
 using FluentValidation.Results;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace DxDirectPrint.Data.Stores
 {

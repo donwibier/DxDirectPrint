@@ -1,0 +1,65 @@
+﻿@using System.Diagnostics.CodeAnalysis
+@using Microsoft.AspNetCore.SignalR.Client
+@using System.Net.Http.Json
+
+@implements IAsyncDisposable
+@inject NavigationManager NavManager
+
+<DxPopup @bind-Visible="@showAlert" HeaderText="Confirm" ShowFooter="true">
+	<BodyContentTemplate>
+		<span>@alertMessage</span>
+	</BodyContentTemplate>
+	<FooterContentTemplate>
+		<DxButton Click="@(() => showAlert = false)" Text="OK"></DxButton>
+	</FooterContentTemplate>
+</DxPopup>
+
+
+@code {
+	private HubConnection? hubConnection;
+	IDictionary<string, object> PrintParams = new Dictionary<string, object>();
+	bool showAlert { get; set; }
+	string alertMessage { get; set; } = "";
+
+
+	protected async override Task OnInitializedAsync()
+	{
+		await base.OnInitializedAsync();
+
+		hubConnection = new HubConnectionBuilder()
+			.WithUrl(NavManager.ToAbsoluteUri("/printhub"))
+			.Build();
+
+		await hubConnection.StartAsync();
+	}
+
+	public bool IsConnected => hubConnection?.State == HubConnectionState.Connected;
+
+	public async ValueTask DisposeAsync()
+	{
+		if (hubConnection is not null)
+		{
+			await hubConnection.DisposeAsync();
+		}
+	}
+
+	public async Task PrintOrder()
+	{
+		//var reportName = settings.ReportName;
+		//var printerName = settings.Printername;
+		//var printQty = settings.PrintQty;
+		//var printID = settings.PrintConnectID;
+
+		PrintPDFArgs args = new PrintPDFArgs(printerName, printQty, id ?? Guid.Empty, userId!);
+		if (hubConnection is not null)
+		{
+			bool success = await hubConnection.InvokeAsync<bool>("PrintReceipt", "Don", printID, args);
+			if (!success)
+			{
+				alertMessage = "No printer found";
+				showAlert = true;
+				return;
+			}
+		}
+	}
+}

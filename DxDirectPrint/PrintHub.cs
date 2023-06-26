@@ -41,6 +41,12 @@ namespace DxDirectPrint
             await base.OnDisconnectedAsync(exception);
         }
 
+        public string EchoService(string message)
+        {
+            //string name = Context.User?.Identity?.Name ?? "";
+            return $"Response: {message}";      
+        }
+
         public async Task<bool> PrintReceipt(string username, string printID, PrintPDFArgs args)
         {
             string name = Context.User?.Identity?.Name ?? username;
