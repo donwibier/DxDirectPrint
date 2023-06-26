@@ -45,12 +45,12 @@
 
 	public async Task PrintOrder()
 	{
-		//var reportName = settings.ReportName;
-		//var printerName = settings.Printername;
-		//var printQty = settings.PrintQty;
-		//var printID = settings.PrintConnectID;
+		var reportName = "XtraReport1";
+		var printerName = "TestPrinter";
+		var printQty = 1;
+		var printID = Guid.NewGuid().ToString();
 
-		PrintPDFArgs args = new PrintPDFArgs(printerName, printQty, id ?? Guid.Empty, userId!);
+		PrintPDFArgs args = new PrintPDFArgs(printerName, printQty, 1, String.Empty );
 		if (hubConnection is not null)
 		{
 			bool success = await hubConnection.InvokeAsync<bool>("PrintReceipt", "Don", printID, args);
