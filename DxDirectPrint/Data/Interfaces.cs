@@ -48,6 +48,6 @@ namespace DxDirectPrint.Data
 
 	public interface IInvoiceService : IDataService<int, InvoiceModel>
 	{
-        Task<byte[]> GetInvoiceReceiptPDFAsync(string username, int invoiceId);
+        Task<byte[]> GetInvoiceReceiptPDFAsync(string username, int invoiceId, string reportName);
     }
 }

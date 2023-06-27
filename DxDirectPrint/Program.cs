@@ -52,7 +52,7 @@ builder.Services.AddResponseCompression(opt =>
 
 
 var connStr = builder.Configuration.GetConnectionString("ChinookConnection");
-builder.Services.AddDbContext<ChinookContext>(options => options.UseSqlServer(connStr));
+builder.Services.AddDbContext<ChinookContext>(options => options.UseSqlServer(connStr), ServiceLifetime.Scoped );
 
 builder.Services.AddScoped<IDataStore<int, InvoiceModel>, InvoiceStore>();
 builder.Services.AddScoped<IValidator<Invoice>, InvoiceValidator>();

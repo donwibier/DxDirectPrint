@@ -19,6 +19,27 @@
             <FluentValidationValidator @ref="fluentValidator"></FluentValidationValidator>
         </CustomValidators>
     </DxGrid>
+    <DxFormLayout CssClass="w-100">
+        <DxFormLayoutItem Caption="PrintID:">
+                <DxTextBox @bind-Text="@PrintID" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Printer:">
+                <DxTextBox @bind-Text="@Printer" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Report:">
+                <DxTextBox @bind-Text="@ReportName"/>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="InvoiceId:">
+                <DxSpinEdit @bind-Value="@InvoiceId" />
+        </DxFormLayoutItem>
+
+    </DxFormLayout>
+
+    <PrintControl @bind-InvoiceId="@InvoiceId"
+                    @bind-PrintID="@PrintID"
+                    @bind-Printer="@Printer"
+                    @bind-ReportName="@ReportName">
+    </PrintControl>
 
 @code {
     private FluentValidationValidator? fluentValidator;
@@ -26,6 +47,12 @@
     ValidationException? serverError;
 
     object Data { get; set; } = default!;
+
+    public string PrintID { get; set; } = "39608bf2-9ff3-4e70-84e7-62c6b4ce5cfe";
+    public string Printer { get; set; } = "POS-58";
+    public string ReportName { get; set; } = "Receipt";
+    public int InvoiceId { get; set; } = 1;
+
 
     protected override void OnInitialized()
     {

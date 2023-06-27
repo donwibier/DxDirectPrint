@@ -33,11 +33,7 @@ namespace DxPrintConnector.Models
         public string RefreshToken { get; set; }
     }
 
-    public record PrintPDFArgs(string Printer, int Copies, Guid OrderID, string UserID);
-    public record PostPDFModel(Guid OrderID, string UserID);
-    //public class PostPDFModel
-    //{
-    //	public Guid OrderID { get; set; }
-    //	public string UserID { get; set; }
-    //}
+	public record PrintPDFArgs(string Printer, int Copies, int OrderID, string UserID, string ReportName);
+	public record PostPDFModel(int OrderID, string UserID, string ReportName);
+
 }

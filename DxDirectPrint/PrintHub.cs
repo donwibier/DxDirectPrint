@@ -1,19 +1,20 @@
-﻿using DxDirectPrint.Data.EF;
+﻿using DxDirectPrint.Data;
+using DxDirectPrint.Data.EF;
 using DxDirectPrint.Data.Services;
 using Microsoft.AspNetCore.SignalR;
 
 namespace DxDirectPrint
 {
-    public record PrintPDFArgs(string Printer, int Copies, int OrderID, string UserID);
+    public record PrintPDFArgs(string Printer, int Copies, int OrderID, string UserID, string ReportName);
     public class PrintHub: Hub
     {
         private readonly static ConnectionMapping<string> _connections =
             new ConnectionMapping<string>();
         private readonly ILogger<PrintHub> log;
-        readonly InvoiceService invoiceService;
+        readonly IInvoiceService invoiceService;
 
 
-        public PrintHub(ILogger<PrintHub> logger, InvoiceService invoiceService)
+        public PrintHub(ILogger<PrintHub> logger, IInvoiceService invoiceService)
         {
             this.invoiceService = invoiceService;
             log = logger;

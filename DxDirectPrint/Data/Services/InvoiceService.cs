@@ -30,7 +30,7 @@ namespace DxDirectPrint.Data.Services
             return result;
         }
 
-        public async Task<byte[]> GetInvoiceReceiptPDFAsync(string username, int invoiceId)
+        public async Task<byte[]> GetInvoiceReceiptPDFAsync(string username, int invoiceId, string reportName)
         {
             ArgumentNullException.ThrowIfNull(invoiceId);
             ArgumentNullException.ThrowIfNull(username);
@@ -40,7 +40,10 @@ namespace DxDirectPrint.Data.Services
             ArgumentNullException.ThrowIfNull(order);
             
             
-            XtraReport report = new XtraReport1(); // 
+            XtraReport report = (reportName == "Receipt") 
+                ? new Receipt() 
+                : new XtraReport1(); 
+
             ArgumentNullException.ThrowIfNull(report);
 
             report.DataSource = new List<InvoiceModel>(new[] { order });            

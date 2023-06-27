@@ -37,7 +37,7 @@ namespace DxPrintConnector.PrinterConnector
 #else
 		private const string host = "https://myapp.com/";
 #endif
-		private HubConnection _connection = default!;				
+		private HubConnection _connection = default!;
 
 		private string token = string.Empty;
 		private string refreshToken = string.Empty;
@@ -56,7 +56,7 @@ namespace DxPrintConnector.PrinterConnector
 				txtEditPrintID.Text = Guid.NewGuid().ToString();
 
 			AddMessage("Installed local printers:");
-			foreach(var s in GetPrinters())
+			foreach (var s in GetPrinters())
 			{
 				AddMessage($"  [{s}]");
 			}
@@ -77,10 +77,10 @@ namespace DxPrintConnector.PrinterConnector
 		public IEnumerable<string> GetPrinters()
 		{
 			var result = new List<string>();
-			foreach(var s in PrinterSettings.InstalledPrinters)
+			foreach (var s in PrinterSettings.InstalledPrinters)
 			{
 				result.Add($"{s}");
-			}			
+			}
 			return result;
 		}
 
@@ -122,7 +122,7 @@ namespace DxPrintConnector.PrinterConnector
 			var content = JsonSerializer.Serialize(model);
 			var bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
 
-			HttpClient _client = new HttpClient();			
+			HttpClient _client = new HttpClient();
 			var authResult = await _client.PostAsync($"{host}api/accounts/Login", bodyContent);
 			var authContent = await authResult.Content.ReadAsStringAsync();
 			try
@@ -135,11 +135,11 @@ namespace DxPrintConnector.PrinterConnector
 				{
 					token = result.Token;
 					refreshToken = result.RefreshToken;
-					SaveSettings();				
-				}				
+					SaveSettings();
+				}
 				return result.IsAuthSuccessful;
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				AddMessage($"ERROR: {ex.Message}");
 				token = string.Empty;
@@ -179,7 +179,7 @@ namespace DxPrintConnector.PrinterConnector
 			else
 				AddMessage("Token refresh successfully");
 			token = result.Token;
-			refreshToken = result.RefreshToken;			
+			refreshToken = result.RefreshToken;
 			SaveSettings();
 		}
 
@@ -202,20 +202,21 @@ namespace DxPrintConnector.PrinterConnector
 					await _connection.StartAsync();
 				};
 
-				_connection.On<string, PrintPDFArgs>("PrintReceipt", 
-					async (printID, args) => {
-						if (printID == txtEditPrintID.Text && args.OrderID != Guid.Empty)
+				_connection.On<string, PrintPDFArgs>("PrintReceipt",
+					async (printID, args) =>
+					{
+						if (printID == txtEditPrintID.Text && args.OrderID != 0)
 							await PrintReceipt(args);
 						else
 							AddMessage($"ERROR: Invalid print job");
-						});
+					});
 
 				await _connection.StartAsync();
-				txtEditPrintID.ReadOnly= false;
+				txtEditPrintID.ReadOnly = false;
 				btnConnect.Checked = true;
 				AddMessage("Connected");
 				string echoResult = await _connection.InvokeAsync<string>("EchoService", "Check 1-2-3");
-
+				AddMessage(echoResult);
 			}
 			catch (Exception ex)
 			{
@@ -238,11 +239,11 @@ namespace DxPrintConnector.PrinterConnector
 				_connection = null;
 			}
 		}
-		
+
 		protected async Task PrintReceipt(PrintPDFArgs args)
 		{
 			AddMessage($"Printing order {args.OrderID}");
-			
+
 			if (notifyIcon1.Visible)
 			{
 				notifyIcon1.BalloonTipTitle = "Order received";
@@ -250,10 +251,10 @@ namespace DxPrintConnector.PrinterConnector
 				notifyIcon1.ShowBalloonTip(4000);
 			}
 
-			var model = new PostPDFModel(args.OrderID, args.UserID);
+			var model = new PostPDFModel(args.OrderID, args.UserID, args.ReportName);
 			var content = JsonSerializer.Serialize(model);
-			var bodyContent = new StringContent(content, Encoding.UTF8, "application/json");			
-			
+			var bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
+
 			HttpClient _client = new HttpClient();
 			int retryCount = 0;
 			while (retryCount < 4)
@@ -262,13 +263,13 @@ namespace DxPrintConnector.PrinterConnector
 				if (!string.IsNullOrEmpty(token))
 					_client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-				var authResult = await _client.PostAsync($"{host}api/orders/PDF", bodyContent);
+				var authResult = await _client.PostAsync($"{host}PDF", bodyContent);
 				if (authResult.StatusCode == System.Net.HttpStatusCode.Unauthorized /*401*/) //token expired				
 				{
 					await RefreshToken();
 				}
 				else if (authResult.StatusCode == System.Net.HttpStatusCode.OK)
-				{					
+				{
 					using (var stream = new MemoryStream())
 					{
 						await authResult.Content.CopyToAsync(stream);
@@ -333,8 +334,9 @@ namespace DxPrintConnector.PrinterConnector
 					}
 					Connect();
 				}
-				else {
-			
+				else
+				{
+
 					await Disconnect();
 
 				}
@@ -396,7 +398,7 @@ namespace DxPrintConnector.PrinterConnector
 			}
 			else
 			{
-				registryKey.DeleteValue("DxPrintConnector");			
+				registryKey.DeleteValue("DxPrintConnector");
 			}
 		}
 
@@ -418,13 +420,14 @@ namespace DxPrintConnector.PrinterConnector
 									 MessageBoxButtons.YesNo);
 				if (confirmResult == DialogResult.Yes)
 				{
-					
+
 					txtEditPrintID.Text = Guid.NewGuid().ToString();
 					SaveSettings();
-					
+
 				}
 			}
-			else if (e.Button.Index == 1){
+			else if (e.Button.Index == 1)
+			{
 				Clipboard.SetText(txtEditPrintID.Text);
 				MessageBox.Show("PrintID is copied to clipboard", "Copied", MessageBoxButtons.OK);
 			}

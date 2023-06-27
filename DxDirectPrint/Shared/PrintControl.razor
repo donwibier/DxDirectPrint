@@ -4,7 +4,7 @@
 
 @implements IAsyncDisposable
 @inject NavigationManager NavManager
-
+<DxButton Text="Print" Click="@PrintOrder"></DxButton>
 <DxPopup @bind-Visible="@showAlert" HeaderText="Confirm" ShowFooter="true">
 	<BodyContentTemplate>
 		<span>@alertMessage</span>
@@ -21,6 +21,14 @@
 	bool showAlert { get; set; }
 	string alertMessage { get; set; } = "";
 
+	[Parameter] public string PrintID { get; set; } = default!;
+	[Parameter] public EventCallback<string> PrintIDChanged{ get; set; }
+	[Parameter] public string Printer { get; set; } = default!;
+	[Parameter] public EventCallback<string> PrinterChanged{ get; set; }
+	[Parameter] public string ReportName { get; set; } = default!;
+	[Parameter] public EventCallback<string> ReportNameChanged { get; set; }
+	[Parameter] public int InvoiceId { get; set; }
+	[Parameter] public EventCallback<int> InvoiceIdChanged { get; set; }
 
 	protected async override Task OnInitializedAsync()
 	{
@@ -44,16 +52,11 @@
 	}
 
 	public async Task PrintOrder()
-	{
-		var reportName = "XtraReport1";
-		var printerName = "TestPrinter";
-		var printQty = 1;
-		var printID = Guid.NewGuid().ToString();
-
-		PrintPDFArgs args = new PrintPDFArgs(printerName, printQty, 1, String.Empty );
+	{		
+		PrintPDFArgs args = new PrintPDFArgs(Printer, 1, InvoiceId, "Don", "Receipt");
 		if (hubConnection is not null)
 		{
-			bool success = await hubConnection.InvokeAsync<bool>("PrintReceipt", "Don", printID, args);
+			bool success = await hubConnection.InvokeAsync<bool>("PrintReceipt", args.UserID, this.PrintID, args);
 			if (!success)
 			{
 				alertMessage = "No printer found";

@@ -29,7 +29,7 @@ namespace DxDirectPrint.Controllers
         [HttpGet("GetOrderPDF/{id}.pdf")]
         public async Task<IActionResult> GetOrder(int id)
         {
-            byte[] content = await invoiceService.GetInvoiceReceiptPDFAsync(HttpContext?.User?.Identity?.Name!, id);
+            byte[] content = await invoiceService.GetInvoiceReceiptPDFAsync(HttpContext?.User?.Identity?.Name!, id, "Receipt");
             return File(content, "application/pdf");
         }
 
@@ -37,8 +37,8 @@ namespace DxDirectPrint.Controllers
         [HttpPost("PDF")]
         public async Task<IActionResult> OrderPDF([FromBody] PostPDFModel model)
         {
-            var user = HttpContext?.User?.Identity?.Name;
-            var result = await invoiceService.GetInvoiceReceiptPDFAsync(user!, model.OrderID);
+            var user = HttpContext?.User?.Identity?.Name??model.UserID;
+            var result = await invoiceService.GetInvoiceReceiptPDFAsync(user!, model.OrderID, model.ReportName);
             if (result != null)
             {
                 return File(result, "application/pdf");
@@ -48,5 +48,6 @@ namespace DxDirectPrint.Controllers
         }
     }
 
-    public record PostPDFModel(int OrderID, string UserID);
+    public record PostPDFModel(int OrderID, string UserID, string ReportName);
+
 }
